@@ -8,6 +8,7 @@ import { TaskCommentsModalComponent } from '../components/task-comments-modal/ta
 })
 export class modalControlerService {
   private readonly modalSizeOptions = {
+    maxWidth: '95%',
     width: '600px',
     panelClass: 'rounded-2xl',
   };
