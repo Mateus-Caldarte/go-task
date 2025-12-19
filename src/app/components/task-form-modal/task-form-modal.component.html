@@ -1,0 +1,52 @@
+<form class="rounded-2xl overflow-hidden bg-white flex flex-col h-full">
+  <div class="flex gap-1 items-center p-4">
+    <img src="images/icon-new-task.svg" />
+    <h1 class="font-semibold text-lg">
+      {{ _data.mode === 'create' ? 'Criar ' : 'Editar ' }} tarefa
+    </h1>
+    <img
+      class="ml-auto cursor-pointer"
+      src="images/icon-close.svg"
+      (click)="cloneModal()"
+    />
+  </div>
+  <div class="p-4 border-y border-[#D1D5DB] flex flex-col gap-4">
+    <div>
+      <p class="font-semibold text-sm mb-2">Nome</p>
+      <input
+        class="w-full border border-[#D1D5DB] p-3 rounded-lg text-sm font-light text-[#89919f]"
+        type="text"
+        placeholder="Descreva o que deverá ser feito"
+      />
+      <p class="font-semibold text-sm text-red-500">
+        O campo é obrigatório e precisa ter no mínimo 10 caracteres.
+      </p>
+    </div>
+    <div>
+      <p class="font-semibold text-sm mb-2">Descrição</p>
+      <input
+        class="w-full border border-[#D1D5DB] p-3 rounded-lg text-sm font-light text-[#89919f]"
+        type="text"
+        placeholder="Adicione uma descrição"
+      />
+      <p class="font-semibold text-sm text-red-500">
+        O campo é obrigatório e precisa ter no mínimo 10 caracteres.
+      </p>
+    </div>
+  </div>
+
+  <div class="p-4 flex justify-end gap-2">
+    <button
+      class="py-3 px-4 bg-[#FAFAFA] rounded-xl text-sm font-semibold cursor-pointer active:translate-y-1 transition-transform duration-75"
+      type="button"
+    >
+      Cancelar
+    </button>
+    <button
+      class="py-3 px-4 bg-[#2A89EF] rounded-xl text-sm font-semibold cursor-pointer active:translate-y-1 transition-transform duration-75 shadow-md shadow-blue-500/50 text-white"
+      type="submit"
+    >
+      {{ _data.mode === 'create' ? 'Criar uma tarefa' : 'Salvar alterações' }}
+    </button>
+  </div>
+</form>
