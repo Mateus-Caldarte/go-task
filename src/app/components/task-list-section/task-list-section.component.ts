@@ -51,6 +51,12 @@ export class TaskListSectionComponent {
       default:
         return;
     }
+
+    this._taskService.updateTaskStatus(
+      taskId,
+      taskCurrentStatus,
+      TaskNextStatus
+    );
   }
 
   private moveCardToColumn(event: CdkDragDrop<Itask[]>) {

@@ -1,5 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { modalControlerService } from '../../services/modal-controler.service';
+import { Itask } from '../../interfaces/task.interface';
+import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'app-task-card',
@@ -8,13 +10,26 @@ import { modalControlerService } from '../../services/modal-controler.service';
   styleUrl: './task-card.component.css',
 })
 export class TaskCardComponent {
+  @Input({ required: true }) task!: Itask;
+
   private readonly __modalControllerService = inject(modalControlerService);
+
+  private readonly _taskService = inject(TaskService);
 
   openEditTaskModal() {
     const dialofRef = this.__modalControllerService.openEditTaskModal({
-      name: 'tarefa',
-      description: 'Descrição tarefa',
+      name: this.task.name,
+      description: this.task.description ?? '',
     });
-    dialofRef.closed.subscribe((taskform) => {});
+    dialofRef.closed.subscribe((taskForm) => {
+      if (taskForm) {
+        this._taskService.updateTaskNameAndDescription(
+          this.task.id,
+          this.task.status,
+          taskForm.name,
+          taskForm.description
+        );
+      }
+    });
   }
 }

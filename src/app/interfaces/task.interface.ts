@@ -5,6 +5,6 @@ export interface Itask {
   id: number | string;
   name: string;
   description?: string;
-  commnets?: Icomment[];
+  comments?: Icomment[];
   status: TaskStatusType;
 }

@@ -16,12 +16,12 @@
       <h1 class="font-bold">A fazer</h1>
       <span
         class="text-xl font-semibold text-white bg-black py-1 px-2 rounded-xl"
-        >1</span
+        >{{ todoTasks.length }}</span
       >
     </div>
     <div class="flex flex-col gap-4">
       @for (todoTask of todoTasks; track todoTask.id) {
-        <app-task-card cdkDrag [cdkDragData]="" />
+        <app-task-card cdkDrag [cdkDragData]="todoTask" [task]="todoTask" />
       }
     </div>
   </div>
@@ -39,12 +39,12 @@
       <h1 class="font-bold">Fazendo</h1>
       <span
         class="text-xl font-semibold text-white bg-[#FF850A] py-1 px-2 rounded-xl"
-        >1</span
+        >{{ doingTasks.length }}</span
       >
     </div>
     <div class="flex flex-col gap-4">
       @for (doingTask of doingTasks; track doingTask.id) {
-        <app-task-card cdkDrag [cdkDragData]="doingTask" />
+        <app-task-card cdkDrag [cdkDragData]="doingTask" [task]="doingTask" />
       }
     </div>
   </div>
@@ -62,19 +62,23 @@
       <h1 class="font-bold">Concluído</h1>
       <span
         class="text-xl font-semibold text-white bg-[#15BE78] py-1 px-2 rounded-xl"
-        >1</span
+        >{{ doneTasks.length }}</span
       >
     </div>
     <div class="flex flex-col gap-4">
       @for (doneTask of doneTasks; track doneTask.id) {
-        <app-task-card cdkDrag [cdkDragData]="doneTask" />
+        <app-task-card cdkDrag [cdkDragData]="doneTask" [task]="doneTask" />
       }
     </div>
   </div>
 </div>
 
-<div class="bg-[#FAFAFA] rounded-sm py-3 px-5 border-l-4 border-black">
-  <p class="font-semibold text-lg text-[#9CA3AF]">
-    Nenhuma tarefa disponível no momento.
-  </p>
-</div>
+@if (
+  todoTasks.length === 0 && doingTasks.length === 0 && doneTasks.length === 0
+) {
+  <div class="bg-[#FAFAFA] rounded-sm py-3 px-5 border-l-4 border-black">
+    <p class="font-semibold text-lg text-[#9CA3AF]">
+      Nenhuma tarefa disponível no momento.
+    </p>
+  </div>
+}
