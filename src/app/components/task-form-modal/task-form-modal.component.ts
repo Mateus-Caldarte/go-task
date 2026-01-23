@@ -32,7 +32,6 @@ export class TaskFormModalComponent {
 
   onFormSubmit() {
     this.closeModal(this.taskform.value);
-    console.log(this.taskform.value);
   }
 
   isNameFieldInvalid(): boolean {

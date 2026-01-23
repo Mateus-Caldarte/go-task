@@ -2,8 +2,10 @@
   <div class="flex gap-1">
     <p class="font-bold">{{ task.name }}</p>
     <img
-      class="self-start cursor-pointer ml-auto"
+      class="self-start cursor-pointer ml-auto hover:opacity-70 transition-opacity"
       src="images/icon-delete.svg"
+      (click)="deleteTask()"
+      title="Excluir tarefa"
     />
   </div>
   <p class="font-light text-sm">

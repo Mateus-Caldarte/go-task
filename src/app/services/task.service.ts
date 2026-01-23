@@ -4,6 +4,7 @@ import { Itask } from '../interfaces/task.interface';
 import { ITaskFormControls } from '../interfaces/task-form-controls.interface';
 import { TaskStatus } from '../enums/task-status.enum';
 import { generateUniqueIdWithTimestamp } from '../utils/generate-unique-id-with-timestamp';
+import { Icomment } from '../interfaces/comment.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -37,7 +38,7 @@ export class TaskService {
   }
 
   updateTaskStatus(
-    taskId: string,
+    taskId: string | number,
     taskCurrentStatus: TaskStatus,
     taskNextStatus: TaskStatus
   ) {
@@ -79,6 +80,35 @@ export class TaskService {
         { ...currentTasks },
       ]);
     }
+  }
+
+  updateTaskComments(
+    taskId: string | number,
+    taskCurrentStatus: TaskStatus,
+    newComments: Icomment[]
+  ) {
+    const currentTaskList$ = this.getTaskListByStatus(taskCurrentStatus);
+    const currentTasks = currentTaskList$.value.find(
+      (task) => task.id === taskId
+    );
+    if (currentTasks) {
+      currentTasks.comments = newComments;
+      const currentTaskListWithoutTask = currentTaskList$.value.filter(
+        (task) => task.id !== taskId
+      );
+      currentTaskList$.next([
+        ...currentTaskListWithoutTask,
+        { ...currentTasks },
+      ]);
+    }
+  }
+
+  deleteTask(taskId: string | number, taskCurrentStatus: TaskStatus) {
+    const currentTaskList$ = this.getTaskListByStatus(taskCurrentStatus);
+    const currentTaskListWithoutTask = currentTaskList$.value.filter(
+      (task) => task.id !== taskId
+    );
+    currentTaskList$.next([...currentTaskListWithoutTask]);
   }
 
   private getTaskListByStatus(

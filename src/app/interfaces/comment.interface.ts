@@ -1,4 +1,4 @@
 export interface Icomment {
-  id: number;
+  id: number | string;
   description: string;
 }
