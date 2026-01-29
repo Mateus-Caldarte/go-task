@@ -10,17 +10,29 @@ import { Icomment } from '../interfaces/comment.interface';
   providedIn: 'root',
 })
 export class TaskService {
-  private todoTasks$ = new BehaviorSubject<Itask[]>([]);
+  private readonly STORAGE_KEYS = {
+    TODO_TASKS: 'goTask_todoTasks',
+    DOING_TASKS: 'goTask_doingTasks',
+    DONE_TASKS: 'goTask_doneTasks',
+  };
+
+  private todoTasks$ = new BehaviorSubject<Itask[]>(
+    this.loadTasksFromStorage(this.STORAGE_KEYS.TODO_TASKS)
+  );
   readonly todoTasks = this.todoTasks$
     .asObservable()
     .pipe(map((tasks) => structuredClone(tasks)));
 
-  private doingTasks$ = new BehaviorSubject<Itask[]>([]);
+  private doingTasks$ = new BehaviorSubject<Itask[]>(
+    this.loadTasksFromStorage(this.STORAGE_KEYS.DOING_TASKS)
+  );
   readonly doingTasks = this.doingTasks$
     .asObservable()
     .pipe(map((tasks) => structuredClone(tasks)));
 
-  private doneTasks$ = new BehaviorSubject<Itask[]>([]);
+  private doneTasks$ = new BehaviorSubject<Itask[]>(
+    this.loadTasksFromStorage(this.STORAGE_KEYS.DONE_TASKS)
+  );
   readonly doneTasks = this.doneTasks$
     .asObservable()
     .pipe(map((tasks) => structuredClone(tasks)));
@@ -34,7 +46,46 @@ export class TaskService {
     };
 
     const currentLists = this.todoTasks$.getValue();
-    this.todoTasks$.next([...currentLists, newTask]);
+    const updatedTasks = [...currentLists, newTask];
+    this.todoTasks$.next(updatedTasks);
+    this.saveTasksToStorage(this.STORAGE_KEYS.TODO_TASKS, updatedTasks);
+  }
+
+  // Métodos de persistência no localStorage
+  private loadTasksFromStorage(key: string): Itask[] {
+    try {
+      const storedTasks = localStorage.getItem(key);
+      return storedTasks ? JSON.parse(storedTasks) : [];
+    } catch (error) {
+      console.error(
+        `Erro ao carregar tarefas do localStorage (${key}):`,
+        error
+      );
+      return [];
+    }
+  }
+
+  private saveTasksToStorage(key: string, tasks: Itask[]): void {
+    try {
+      localStorage.setItem(key, JSON.stringify(tasks));
+    } catch (error) {
+      console.error(`Erro ao salvar tarefas no localStorage (${key}):`, error);
+    }
+  }
+
+  // Método público para limpar todas as tarefas do localStorage
+  clearAllTasks(): void {
+    try {
+      localStorage.removeItem(this.STORAGE_KEYS.TODO_TASKS);
+      localStorage.removeItem(this.STORAGE_KEYS.DOING_TASKS);
+      localStorage.removeItem(this.STORAGE_KEYS.DONE_TASKS);
+
+      this.todoTasks$.next([]);
+      this.doingTasks$.next([]);
+      this.doneTasks$.next([]);
+    } catch (error) {
+      console.error('Erro ao limpar tarefas do localStorage:', error);
+    }
   }
 
   updateTaskStatus(
@@ -54,8 +105,20 @@ export class TaskService {
       const currentTaskListWithoutTask = currentTaskList$.value.filter(
         (task) => task.id !== taskId
       );
+      const updatedNextTaskList = [...nextTaskList$.value, { ...currentTasks }];
+
       currentTaskList$.next([...currentTaskListWithoutTask]);
-      nextTaskList$.next([...nextTaskList$.value, { ...currentTasks }]);
+      nextTaskList$.next(updatedNextTaskList);
+
+      // Salvar no localStorage
+      this.saveTasksToStorage(
+        this.getStorageKeyByStatus(taskCurrentStatus),
+        currentTaskListWithoutTask
+      );
+      this.saveTasksToStorage(
+        this.getStorageKeyByStatus(taskNextStatus),
+        updatedNextTaskList
+      );
     }
   }
 
@@ -75,10 +138,16 @@ export class TaskService {
       const currentTaskListWithoutTask = currentTaskList$.value.filter(
         (task) => task.id !== taskId
       );
-      currentTaskList$.next([
+      const updatedTaskList = [
         ...currentTaskListWithoutTask,
         { ...currentTasks },
-      ]);
+      ];
+
+      currentTaskList$.next(updatedTaskList);
+      this.saveTasksToStorage(
+        this.getStorageKeyByStatus(taskCurrentStatus),
+        updatedTaskList
+      );
     }
   }
 
@@ -96,10 +165,16 @@ export class TaskService {
       const currentTaskListWithoutTask = currentTaskList$.value.filter(
         (task) => task.id !== taskId
       );
-      currentTaskList$.next([
+      const updatedTaskList = [
         ...currentTaskListWithoutTask,
         { ...currentTasks },
-      ]);
+      ];
+
+      currentTaskList$.next(updatedTaskList);
+      this.saveTasksToStorage(
+        this.getStorageKeyByStatus(taskCurrentStatus),
+        updatedTaskList
+      );
     }
   }
 
@@ -108,7 +183,21 @@ export class TaskService {
     const currentTaskListWithoutTask = currentTaskList$.value.filter(
       (task) => task.id !== taskId
     );
+
     currentTaskList$.next([...currentTaskListWithoutTask]);
+    this.saveTasksToStorage(
+      this.getStorageKeyByStatus(taskCurrentStatus),
+      currentTaskListWithoutTask
+    );
+  }
+
+  private getStorageKeyByStatus(taskStatus: TaskStatus): string {
+    const storageKeyObj = {
+      [TaskStatus.TODO]: this.STORAGE_KEYS.TODO_TASKS,
+      [TaskStatus.DOING]: this.STORAGE_KEYS.DOING_TASKS,
+      [TaskStatus.DONE]: this.STORAGE_KEYS.DONE_TASKS,
+    };
+    return storageKeyObj[taskStatus];
   }
 
   private getTaskListByStatus(
